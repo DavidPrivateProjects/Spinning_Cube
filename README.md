@@ -71,8 +71,7 @@ The spinning cube is a terminal-based 3D animation using ASCII characters. It re
 - The final position is calculated by multiplying the point by the X, Y, and Z rotation matrices in sequence.
 
 2. Projection to 2D
-- The 3D coordinates are projected onto a 2D screen using perspective projection:
-<img width="74" alt="image" src="https://github.com/user-attachments/assets/5cf23794-f561-417c-8d00-4a672e892d73" />
+- The 3D coordinates are projected onto a 2D screen using perspective projection: <img width="74" alt="image" src="https://github.com/user-attachments/assets/5cf23794-f561-417c-8d00-4a672e892d73" />
 - K1 is a constant representing camera distance from screen.
 - The result is then offset to center the image in the terminal window.
 
