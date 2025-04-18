@@ -19,10 +19,9 @@ A real-time 3D ASCII cube rendered in the terminal using Python. This project fe
 
 Install dependencies using:
 
-```bash
 pip install keyboard
 
-Usage
+## Usage
 bash
 Copy
 Edit
@@ -52,7 +51,7 @@ cube_size: Size of the cube
 
 inertia: Controls damping (closer to 1 means more persistent spin)
 
-How It Works
+## How It Works
 Each face of the cube is rendered by projecting 3D points into 2D space using trigonometric transformations.
 
 A z-buffer is used to simulate depth, ensuring only the nearest surfaces are drawn.
@@ -66,5 +65,5 @@ Keyboard input may require administrator privileges, depending on the OS
 
 Resizing the terminal during execution may cause rendering glitches
 
-License
+## License
 This project is licensed under the MIT License.
