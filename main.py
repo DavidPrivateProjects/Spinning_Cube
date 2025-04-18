@@ -2,122 +2,132 @@ from math import cos, sin
 import time
 import keyboard
 
-def get_x(i, j, k):
-    return (  j * sin(a) * sin(b) * cos(c) 
-            - k * cos(a) * sin(b) * cos(c)
-            + j * cos(a) * sin(c) 
-            + k * sin(a) * sin(c)
-            + i * cos(b) * cos(c))
 
-def get_y(i, j, k):
-    return (  j * cos(a) * cos(c) 
-            + k * sin(a) * cos(c)
-            - j * sin(a) * sin(b) * sin(c) 
-            + k * cos(a) * sin(b) * sin(c)
-            - i * cos(b) * sin(c))
+class Cube:
+    def __init__(self, width=160, height=44, cube_size=10):
+        self.width = width
+        self.height = height
+        self.cube_size = cube_size
+        self.background = ' '
+        self.buffer = [' '] * (self.width * self.height)
+        self.zbuffer = [0] * (self.width * self.height)
+        self.k1 = 40  # Projection constant
+        self.dist_from_cam = 100
+        self.inc = 1  # Increment step for plotting cube
+        self.inertia = 0.98
 
-def get_z(i, j, k):
-    return (  k * cos(a) * cos(b) 
-            - j * sin(a) * cos(b)
-            + i * sin(b))
+        # Rotation angles
+        self.a = 0.0
+        self.b = 0.0
+        self.c = 0.0
 
+        # Angular velocities (momentum)
+        self.vel_a = 0.1
+        self.vel_b = 0.1
+        self.vel_c = 0.1
 
-def calc_surface(i, j, k, chr):
-    global x, y, z, ooz, xp, yp, idx
-    x = get_x(i, j, k)
-    y = get_y(i, j, k)
-    z = get_z(i, j, k) + dist_from_cam
+    def get_x(self, i, j, k):
+        return (j * sin(self.a) * sin(self.b) * cos(self.c)
+                - k * cos(self.a) * sin(self.b) * cos(self.c)
+                + j * cos(self.a) * sin(self.c)
+                + k * sin(self.a) * sin(self.c)
+                + i * cos(self.b) * cos(self.c))
 
-    ooz = 1/z
+    def get_y(self, i, j, k):
+        return (j * cos(self.a) * cos(self.c)
+                + k * sin(self.a) * cos(self.c)
+                - j * sin(self.a) * sin(self.b) * sin(self.c)
+                + k * cos(self.a) * sin(self.b) * sin(self.c)
+                - i * cos(self.b) * sin(self.c))
 
-    xp = int(width / 2 + k1 * ooz * x * 2)
-    yp = int(height / 2 + k1 * ooz * y)
+    def get_z(self, i, j, k):
+        return (k * cos(self.a) * cos(self.b)
+                - j * sin(self.a) * cos(self.b)
+                + i * sin(self.b))
 
-    idx = xp + yp * width
-    if 0 <= idx < width * height:
-        if ooz > zbuffer[idx]:
-            zbuffer[idx] = ooz
-            buffer[idx] = chr
+    def calc_surface(self, i, j, k, char):
+        """Project a 3D point (i, j, k) into 2D and place it in the buffer if visible"""
+        x = self.get_x(i, j, k)
+        y = self.get_y(i, j, k)
+        z = self.get_z(i, j, k) + self.dist_from_cam
 
-def render_frame():
-    for i in range(height):
-        start = i * width
-        line = ''.join(buffer[start:start + width])
-        print(line)
-    # Move cursor to top-left without clearing screen
-    print('\x1b[H', end='')
+        ooz = 1 / z
+        xp = int(self.width / 2 + self.k1 * ooz * x * 2)
+        yp = int(self.height / 2 + self.k1 * ooz * y)
 
+        idx = xp + yp * self.width
+        if 0 <= idx < self.width * self.height:
+            if ooz > self.zbuffer[idx]:
+                self.zbuffer[idx] = ooz
+                self.buffer[idx] = char
 
-# Helper: Python doesn't have a built-in float range
-def frange(start, stop, step):
-    while start < stop:
-        yield start
-        start += step
+    def frange(self, start, stop, step):
+        """Like range(), but for floats"""
+        while start < stop:
+            yield start
+            start += step
 
+    def render_frame(self):
+        """Draw buffer to terminal"""
+        print('\x1b[H', end='')  # Move cursor to top-left
+        for i in range(self.height):
+            start = i * self.width
+            line = ''.join(self.buffer[start:start + self.width])
+            print(line)
 
-def handle_input():
-    global vel_a, vel_b, vel_c
+    def handle_input(self):
+        """Check for keyboard input and apply rotation momentum"""
+        delta = 0.0015
+        if keyboard.is_pressed('up'):
+            self.vel_b -= delta
+        if keyboard.is_pressed('down'):
+            self.vel_b += delta
+        if keyboard.is_pressed('left'):
+            self.vel_a -= delta
+        if keyboard.is_pressed('right'):
+            self.vel_a += delta
 
-    delta = 0.0015  # Speed adjustment per keypress
+    def update(self):
+        """Clear buffers, handle input, draw cube surfaces, update physics"""
+        self.buffer = [self.background] * (self.width * self.height)
+        self.zbuffer = [0] * (self.width * self.height)
 
-    if keyboard.is_pressed('up'):
-        vel_b -= delta
-    if keyboard.is_pressed('down'):
-        vel_b += delta
-    if keyboard.is_pressed('left'):
-        vel_a -= delta
-    if keyboard.is_pressed('right'):
-        vel_a += delta
+        self.handle_input()
+
+        # Draw all cube faces
+        for x in self.frange(-self.cube_size, self.cube_size, self.inc):
+            for y in self.frange(-self.cube_size, self.cube_size, self.inc):
+                self.calc_surface(x, y, -self.cube_size, '@')
+                self.calc_surface(self.cube_size, y, x, '$')
+                self.calc_surface(-self.cube_size, y, -x, '~')
+                self.calc_surface(-x, y, self.cube_size, '#')
+                self.calc_surface(x, -self.cube_size, -y, ';')
+                self.calc_surface(x, self.cube_size, y, '+')
+
+        self.render_frame()
+
+        # Apply angular velocity
+        self.a += self.vel_a
+        self.b += self.vel_b
+        self.c += self.vel_c
+
+        # Apply damping/inertia
+        self.vel_a *= self.inertia
+        self.vel_b *= self.inertia
+        self.vel_c *= self.inertia
+
+    def run(self):
+        """Main loop"""
+        #print('\x1b[2J')  # Clear screen
+        time.sleep(5)
+        while True:
+            self.update()
+            time.sleep(0.003)
 
 
 if __name__ == "__main__":
-    # Rotation angles
-    a, b, c = 0, 0, 0
-    # Angular velocities (momentum)
-    vel_a, vel_b, vel_c = 0.1, 0.1, 0.1
-    
-    # Constants
-    cube_width = 10
-    width, height = 160, 44
-    background_ascii_code = ' '
-    inc_speed = 1
-    dist_from_cam = 100
-    k1 = 40
-    # Inertia (friction factor)
-    inertia = 0.98
+    cube = Cube()
+    cube.run()
 
-
-
-    time.sleep(5)
-    while True:
-        buffer = [background_ascii_code] * (width * height)
-        zbuffer = [0] * (width * height)
-
-
-        # Input handling
-        handle_input()
-
-        for cube_x in frange(-cube_width, cube_width, inc_speed):
-            for cube_y in frange(-cube_width, cube_width, inc_speed):
-                calc_surface(cube_x, cube_y, -cube_width, '@')
-                calc_surface(cube_width, cube_y, cube_x, '$')
-                calc_surface(-cube_width, cube_y, -cube_x, '~')
-                calc_surface(-cube_x, cube_y, cube_width, '#')
-                calc_surface(cube_x, -cube_width, -cube_y, ';')
-                calc_surface(cube_x, cube_width, cube_y, '+')
-        
-        render_frame()
-
-        # Update rotation angles with momentum
-        a += vel_a
-        b += vel_b
-        c += vel_c
-
-        # Apply inertia
-        vel_a *= inertia
-        vel_b *= inertia
-        vel_c *= inertia
-
-        time.sleep(0.003)
         
 
