@@ -1,7 +1,6 @@
-from math import cos as cos
-from math import sin as sin
+from math import cos, sin
 import time
-
+import keyboard
 
 def get_x(i, j, k):
     return (  j * sin(a) * sin(b) * cos(c) 
@@ -56,22 +55,48 @@ def frange(start, stop, step):
         start += step
 
 
+def handle_input():
+    global vel_a, vel_b, vel_c
+
+    delta = 0.0015  # Speed adjustment per keypress
+
+    if keyboard.is_pressed('up'):
+        vel_a -= delta
+    if keyboard.is_pressed('down'):
+        vel_a += delta
+    if keyboard.is_pressed('left'):
+        vel_b -= delta
+    if keyboard.is_pressed('right'):
+        vel_b += delta
+
+
 if __name__ == "__main__":
     # Rotation angles
     a, b, c = 0, 0, 0
+    # Angular velocities (momentum)
+    vel_a, vel_b, vel_c = 0.1, 0.1, 0.1
     
     # Constants
     cube_width = 10
     width, height = 160, 44
-    background_ascii_code = '.'
+    background_ascii_code = ' '
     inc_speed = 1
     dist_from_cam = 100
     k1 = 40
+    # Inertia (friction factor)
+    inertia = 0.98
+
+
+
     time.sleep(5)
-    #os.system("cls") # delete the current screen in windows
     while True:
         buffer = [background_ascii_code] * (width * height)
         zbuffer = [0] * (width * height)
+
+
+        # Input handling
+        handle_input()
+
         for cube_x in frange(-cube_width, cube_width, inc_speed):
             for cube_y in frange(-cube_width, cube_width, inc_speed):
                 calc_surface(cube_x, cube_y, -cube_width, '@')
@@ -82,9 +107,17 @@ if __name__ == "__main__":
                 calc_surface(cube_x, cube_width, cube_y, '+')
         
         render_frame()
-        a += 0.005
-        b += 0.005
-        c += 0.01
+
+        # Update rotation angles with momentum
+        a += vel_a
+        b += vel_b
+        c += vel_c
+
+        # Apply inertia
+        vel_a *= inertia
+        vel_b *= inertia
+        vel_c *= inertia
+
         time.sleep(0.003)
         
 
