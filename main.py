@@ -1,8 +1,6 @@
 from math import cos as cos
 from math import sin as sin
-import os
 import time
-import sys
 
 
 def get_x(i, j, k):
@@ -43,13 +41,12 @@ def calc_surface(i, j, k, chr):
             buffer[idx] = chr
 
 def render_frame():
-    print('\x1b[H', end='')  # Move cursor to top-left without clearing screen
-    """for i in range(height):
+    for i in range(height):
         start = i * width
         line = ''.join(buffer[start:start + width])
-        print(line)"""
-    for k in range(width * height):
-        print(buffer[k], end='' if k % width else '\n')
+        print(line)
+    # Move cursor to top-left without clearing screen
+    print('\x1b[H', end='')
 
 
 # Helper: Python doesn't have a built-in float range
@@ -70,8 +67,7 @@ if __name__ == "__main__":
     inc_speed = 1
     dist_from_cam = 100
     k1 = 40
-    print("\x1b[2J") 
-
+    time.sleep(5)
     #os.system("cls") # delete the current screen in windows
     while True:
         buffer = [background_ascii_code] * (width * height)
@@ -84,7 +80,6 @@ if __name__ == "__main__":
                 calc_surface(-cube_x, cube_y, cube_width, '#')
                 calc_surface(cube_x, -cube_width, -cube_y, ';')
                 calc_surface(cube_x, cube_width, cube_y, '+')
-        
         
         render_frame()
         a += 0.005
