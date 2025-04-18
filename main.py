@@ -1,17 +1,8 @@
-import math
 from math import cos as cos
 from math import sin as sin
 import os
-
-cube_width = 10
-width, height = 160, 44
-zbuffer = [None] * 160 * 44
-buffer = [None] * 160 * 44
-background_ascii_code = ' '
-inc_speed = 1
-dist_from_cam = 60
-k1 = 40
-idx = None
+import time
+import sys
 
 
 def get_x(i, j, k):
@@ -34,38 +25,71 @@ def get_z(i, j, k):
             + i * sin(b))
 
 
-def calc_surface(i, j, k, char):
+def calc_surface(i, j, k, chr):
+    global x, y, z, ooz, xp, yp, idx
     x = get_x(i, j, k)
     y = get_y(i, j, k)
     z = get_z(i, j, k) + dist_from_cam
 
     ooz = 1/z
 
-    xp = width / 2 + k1 * ooz * x * 2
-    yp = height / 2 + k1 * ooz * y
+    xp = int(width / 2 + k1 * ooz * x * 2)
+    yp = int(height / 2 + k1 * ooz * y)
 
     idx = xp + yp * width
-    if idx >= 0 and idx < width * height:
+    if 0 <= idx < width * height:
         if ooz > zbuffer[idx]:
-            buffer[idx] = char
+            zbuffer[idx] = ooz
+            buffer[idx] = chr
+
+def render_frame():
+    print('\x1b[H', end='')  # Move cursor to top-left without clearing screen
+    """for i in range(height):
+        start = i * width
+        line = ''.join(buffer[start:start + width])
+        print(line)"""
+    for k in range(width * height):
+        print(buffer[k], end='' if k % width else '\n')
 
 
-def main():
-    print()
+# Helper: Python doesn't have a built-in float range
+def frange(start, stop, step):
+    while start < stop:
+        yield start
+        start += step
+
+
+if __name__ == "__main__":
+    # Rotation angles
+    a, b, c = 0, 0, 0
+    
+    # Constants
+    cube_width = 10
+    width, height = 160, 44
+    background_ascii_code = '.'
+    inc_speed = 1
+    dist_from_cam = 100
+    k1 = 40
+    print("\x1b[2J") 
+
     #os.system("cls") # delete the current screen in windows
     while True:
-        background = [background_ascii_code * width * height]
-        for x in range(-cube_width, cube_width, inc_speed):
-            for y in range(-cube_width, cube_width, inc_speed):
-                for z in range(-cube_width, cube_width, inc_speed):
-                    calc_surface(x, y, -cube_width, '#')
+        buffer = [background_ascii_code] * (width * height)
+        zbuffer = [0] * (width * height)
+        for cube_x in frange(-cube_width, cube_width, inc_speed):
+            for cube_y in frange(-cube_width, cube_width, inc_speed):
+                calc_surface(cube_x, cube_y, -cube_width, '@')
+                calc_surface(cube_width, cube_y, cube_x, '$')
+                calc_surface(-cube_width, cube_y, -cube_x, '~')
+                calc_surface(-cube_x, cube_y, cube_width, '#')
+                calc_surface(cube_x, -cube_width, -cube_y, ';')
+                calc_surface(cube_x, cube_width, cube_y, '+')
         
-        for k in range(0, width * height):
-            putchar(k % width ? buffer[k] : 10)
-
+        
+        render_frame()
         a += 0.005
         b += 0.005
+        c += 0.01
+        time.sleep(0.003)
+        
 
-
-
-main()
