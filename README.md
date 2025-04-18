@@ -28,10 +28,6 @@ Install dependencies using:
 pip install keyboard
 
 ## Usage
-bash
-Copy
-Edit
-python cube.py
 Once launched, the cube will start spinning automatically. Use the arrow keys to influence its rotation:
 
 Hold keys to add spin in a direction
