@@ -2,6 +2,12 @@
 
 A real-time 3D ASCII cube rendered in the terminal using Python. This project features dynamic cube rotation with keyboard-controlled momentum and inertia for a smooth, physics-inspired experience.
 
+
+
+https://github.com/user-attachments/assets/1ac721a4-6463-4527-b8f0-38f0a26156ea
+
+
+
 ## Features
 
 - Rotating 3D cube rendered using ASCII characters
