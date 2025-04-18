@@ -58,18 +58,41 @@ cube_size: Size of the cube
 inertia: Controls damping (closer to 1 means more persistent spin)
 
 ## How It Works
-Each face of the cube is rendered by projecting 3D points into 2D space using trigonometric transformations.
+The spinning cube is a terminal-based 3D animation using ASCII characters. It relies on 3D rotation, projection, and depth buffering.
 
-A z-buffer is used to simulate depth, ensuring only the nearest surfaces are drawn.
+1. 3D Rotation
+The cube exists in a 3D coordinate system (X, Y, Z).
 
-Momentum is simulated using angular velocities that persist and decay over time.
+Each cube point (i, j, k) is rotated using three angles:
 
-Known Limitations
-Requires a terminal that supports ANSI escape codes (for cursor positioning)
+A (rotation around X-axis)
 
-Keyboard input may require administrator privileges, depending on the OS
+B (rotation around Y-axis)
 
-Resizing the terminal during execution may cause rendering glitches
+C (rotation around Z-axis)
+
+Rotation is applied using rotation matrices:
+
+Each rotation matrix transforms the point around a specific axis.
+
+The final position is calculated by multiplying the point by the X, Y, and Z rotation matrices in sequence.
+
+2. Projection to 2D
+The 3D coordinates are projected onto a 2D screen using perspective projection:
+​
+<img width="74" alt="image" src="https://github.com/user-attachments/assets/5cf23794-f561-417c-8d00-4a672e892d73" />
+
+
+K1 is a constant representing camera distance from screen.
+
+The result is then offset to center the image in the terminal window.
+
+3. Z-Buffering (Depth Perception)
+Without depth handling, farther points may render over closer ones.
+
+A z-buffer is used to store the depth (z-value) of each pixel.
+
+Only points closer to the camera update the screen, creating proper depth illusion.
 
 ## License
 This project is licensed under the MIT License.
