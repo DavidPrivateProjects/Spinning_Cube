@@ -67,6 +67,27 @@ class Cube:
             yield start
             start += step
 
+    def render_key_status_to_buffer(self):
+        """Render arrow key status into the buffer (bottom-left corner)"""
+        status_lines = [
+            "Controls:",
+            f"↑ UP:    [{'X' if keyboard.is_pressed('up') else ' '}]",
+            f"↓ DOWN:  [{'X' if keyboard.is_pressed('down') else ' '}]",
+            f"← LEFT:  [{'X' if keyboard.is_pressed('left') else ' '}]",
+            f"→ RIGHT: [{'X' if keyboard.is_pressed('right') else ' '}]",
+        ]
+
+        base_y = self.height - len(status_lines) - 1  # Render from bottom up
+        base_x = 2  # Small indent from left
+
+        for i, line in enumerate(status_lines):
+            for j, char in enumerate(line):
+                x = base_x + j
+                y = base_y + i
+                if 0 <= x < self.width and 0 <= y < self.height:
+                    self.buffer[y * self.width + x] = char
+
+
     def render_frame(self):
         """Draw buffer to terminal"""
         print('\x1b[H', end='')  # Move cursor to top-left
@@ -74,6 +95,7 @@ class Cube:
             start = i * self.width
             line = ''.join(self.buffer[start:start + self.width])
             print(line)
+
 
     def handle_input(self):
         """Check for keyboard input and apply rotation momentum"""
@@ -86,6 +108,7 @@ class Cube:
             self.vel_a -= delta
         if keyboard.is_pressed('right'):
             self.vel_a += delta
+
 
     def update(self):
         """Clear buffers, handle input, draw cube surfaces, update physics"""
@@ -104,6 +127,7 @@ class Cube:
                 self.calc_surface(x, -self.cube_size, -y, ';')
                 self.calc_surface(x, self.cube_size, y, '+')
 
+        self.render_key_status_to_buffer()
         self.render_frame()
 
         # Apply angular velocity
