@@ -61,13 +61,13 @@ def handle_input():
     delta = 0.0015  # Speed adjustment per keypress
 
     if keyboard.is_pressed('up'):
-        vel_a -= delta
-    if keyboard.is_pressed('down'):
-        vel_a += delta
-    if keyboard.is_pressed('left'):
         vel_b -= delta
-    if keyboard.is_pressed('right'):
+    if keyboard.is_pressed('down'):
         vel_b += delta
+    if keyboard.is_pressed('left'):
+        vel_a -= delta
+    if keyboard.is_pressed('right'):
+        vel_a += delta
 
 
 if __name__ == "__main__":
