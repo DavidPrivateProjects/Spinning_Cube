@@ -72,6 +72,7 @@ The spinning cube is a terminal-based 3D animation using ASCII characters. It re
 
 2. Projection to 2D
 - The 3D coordinates are projected onto a 2D screen using perspective projection:
+
 $$
 x' = \frac{x \cdot K_1}{z}
 $$
