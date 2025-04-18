@@ -61,15 +61,15 @@ inertia: Controls damping (closer to 1 means more persistent spin)
 The spinning cube is a terminal-based 3D animation using ASCII characters. It relies on 3D rotation, projection, and depth buffering.
 
 1. 3D Rotation
-The cube exists in a 3D coordinate system (X, Y, Z).
+- The cube exists in a 3D coordinate system (X, Y, Z).
 
-Each cube point (i, j, k) is rotated using three angles:
+- Each cube point (i, j, k) is rotated using three angles:
 
-A (rotation around X-axis)
+  - A (rotation around X-axis)
 
-B (rotation around Y-axis)
+  - B (rotation around Y-axis)
 
-C (rotation around Z-axis)
+  - C (rotation around Z-axis)
 
 Rotation is applied using rotation matrices:
 
